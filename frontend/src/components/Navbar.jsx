@@ -1,11 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-const Navbar = ({ user, setUser }) => {
-    const navigate = useNavigate();
+const Navbar = () => {
+    let user;
     const handleSignOut = () => {
-        setUser(null);
-        localStorage.removeItem('user');
-        setTimeout(() => navigate('/'), 500);
+        console.log('You tried to sign out');
     };
     return (
         <div className='navbar bg-primary'>

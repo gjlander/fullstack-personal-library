@@ -1,24 +1,15 @@
 import { useState } from 'react';
-import { useOutletContext, useNavigate } from 'react-router-dom';
-import { signInUser } from '../lib/libraryAPI';
 
 const SignIn = () => {
     const [value, setValue] = useState('');
-    const { setUser } = useOutletContext();
-    const navigate = useNavigate();
     const handleSignIn = async (e) => {
         e.preventDefault();
         try {
-            const currUser = await signInUser(value);
-            console.log(currUser);
-
-            localStorage.setItem('user', JSON.stringify(currUser));
-            setUser(currUser);
+            console.log(value);
         } catch (error) {
             console.error(error);
         }
         setValue('');
-        setTimeout(() => navigate('/profile'), 500);
     };
     return (
         <div className='flex flex-col items-center p-4 gap-6'>
