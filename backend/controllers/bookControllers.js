@@ -1,48 +1,58 @@
 const Book = require('../models/Book.js');
+const ErrorResponse = require('../utils/ErrorResponse.js');
 
 // get all books
-const getAllBooks = async (req, res) => {
+const getAllBooks = async (req, res, next) => {
     try {
         const books = await Book.find();
+
         if (!books.length) {
-            res.status(200).json({ msg: 'No books in the DB' });
-        } else {
-            res.status(200).json({ books });
+            return res.status(200).json({ msg: 'No books in the DB' });
         }
+
+        return res.status(200).json({ books });
     } catch (error) {
-        res.status(500).json(error);
+        next(error);
     }
 };
 
 // get one book
-const getOneBook = async (req, res) => {
+const getOneBook = async (req, res, next) => {
     try {
         const { id } = req.params;
         const book = await Book.findById(id);
 
-        if (book) {
-            return res.status(200).json(book);
+        if (!book) {
+            throw new ErrorResponse('I did not find this book :(', 404);
         }
-        res.status(404).json({ msg: 'I did not find this book :(' });
+        return res.status(200).json(book);
     } catch (error) {
-        res.status(500).json(error);
+        next(error);
     }
 };
 
 // create a new book
-const createBook = async (req, res) => {
+const createBook = async (req, res, next) => {
     try {
         // We grab exactly the keys that we have in the blueprint (Schema)
         const { title, isbn, author } = req.body;
+
         const book = await Book.create({ title, isbn, author });
-        res.status(201).json(book);
+        if (!book) {
+            throw new ErrorResponse(
+                'Something went wrong creating this book',
+                400
+            );
+        }
+
+        return res.status(201).json({ msg: 'Book successfully created', book });
     } catch (error) {
-        res.status(500).json(error);
+        next(error);
     }
 };
 
 // update a book
-const updateBook = async (req, res) => {
+const updateBook = async (req, res, next) => {
     try {
         const { title, isbn, author } = req.body;
         const { id } = req.params;
@@ -56,35 +66,34 @@ const updateBook = async (req, res) => {
         );
 
         if (!book) {
-            res.status(404).json({ msg: "I don't know this book :(" });
-        } else {
-            res.status(200).json({
-                msg: 'Book updated successfully',
-                book,
-            });
+            throw new ErrorResponse('Book not found', 404);
         }
+
+        return res.status(200).json({
+            msg: 'Book updated successfully',
+            book,
+        });
     } catch (error) {
-        res.status(500).json(error);
+        next(error);
     }
 };
 
 // delete a book
-const deleteOneBook = async (req, res) => {
+const deleteOneBook = async (req, res, next) => {
     try {
         const { id } = req.params;
 
         const book = await Book.findByIdAndDelete(id);
 
         if (!book) {
-            res.status(404).json({ msg: "I don't know this book :(" });
-        } else {
-            res.status(200).json({
-                msg: 'Book deleted successfully',
-                book,
-            });
+            throw new ErrorResponse('Book not found', 404);
         }
+        return res.status(200).json({
+            msg: 'Book deleted successfully',
+            book,
+        });
     } catch (error) {
-        res.status(500).json(error);
+        next(error);
     }
 };
 

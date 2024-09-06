@@ -1,4 +1,6 @@
 const express = require('express');
+const validateSchema = require('../middlewares/validateSchema.js');
+const { joiUserSchema } = require('../lib/joiSchemas.js');
 
 // import all the controllers
 const {
@@ -17,14 +19,17 @@ const {
 const userRouter = express.Router();
 
 // decide which controllers to execute on the specific actions
-userRouter.route('/').get(getAllUsers).post(createUser);
+userRouter
+    .route('/')
+    .get(getAllUsers)
+    .post(validateSchema(joiUserSchema), createUser);
 
 userRouter.route('/login').post(getUserByEmail);
 
 userRouter
     .route('/auth/:id')
     .get(getOneUser)
-    .put(updateUser)
+    .put(validateSchema(joiUserSchema), updateUser)
     .delete(deleteOneUser);
 
 userRouter.route('/auth/:id/books').post(addBookToList);

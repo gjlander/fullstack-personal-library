@@ -1,4 +1,6 @@
 const express = require('express');
+const validateSchema = require('../middlewares/validateSchema.js');
+const { joiBookSchema } = require('../lib/joiSchemas.js');
 
 // import all the controllers
 const {
@@ -13,8 +15,15 @@ const {
 const bookRouter = express.Router();
 
 // decide which controllers to execute on the specific actions
-bookRouter.route('/').get(getAllBooks).post(createBook);
+bookRouter
+    .route('/')
+    .get(getAllBooks)
+    .post(validateSchema(joiBookSchema), createBook);
 
-bookRouter.route('/:id').get(getOneBook).put(updateBook).delete(deleteOneBook);
+bookRouter
+    .route('/:id')
+    .get(getOneBook)
+    .put(validateSchema(joiBookSchema), updateBook)
+    .delete(deleteOneBook);
 
 module.exports = bookRouter;

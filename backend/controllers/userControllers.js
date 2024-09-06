@@ -6,11 +6,12 @@ const getAllUsers = async (req, res, next) => {
     try {
         // throw new Error('Something went wrong');
         const users = await User.find().populate('readingList.bookRefId');
+
         if (!users.length) {
-            res.status(200).json({ msg: 'No users in the DB' });
-        } else {
-            res.status(200).json({ users });
+            return res.status(200).json({ msg: 'No users in the DB' });
         }
+
+        return res.status(200).json({ users });
     } catch (error) {
         // res.status(500).json(error.message);
         // next()
@@ -38,8 +39,18 @@ const createUser = async (req, res, next) => {
     try {
         // We grab exactly the keys that we have in the blueprint (Schema)
         const { firstName, lastName, email } = req.body;
+        // if (!firstName || !lastName || !email) {
+        //     throw new ErrorResponse('Missing fields!', 400);
+        // }
+
         const user = await User.create({ firstName, lastName, email });
-        res.status(201).json(user);
+        if (!user) {
+            throw new ErrorResponse(
+                'Something went wrong creating this user',
+                400
+            );
+        }
+        return res.status(201).json({ msg: 'User successfully created', user });
     } catch (error) {
         next(error);
     }
@@ -68,6 +79,10 @@ const updateUser = async (req, res, next) => {
         const { firstName, lastName, email } = req.body;
         const { id } = req.params;
 
+        if (!firstName || !lastName || !email) {
+            throw new ErrorResponse('Missing fields!', 400);
+        }
+
         const user = await User.findByIdAndUpdate(
             id,
             {
@@ -81,13 +96,12 @@ const updateUser = async (req, res, next) => {
         );
 
         if (!user) {
-            res.status(404).json({ msg: "I don't know this user :(" });
-        } else {
-            res.status(200).json({
-                msg: 'User updated successfully',
-                user,
-            });
+            throw new ErrorResponse('I did not find this user :(', 404);
         }
+        return res.status(200).json({
+            msg: 'User updated successfully',
+            user,
+        });
     } catch (error) {
         next(error);
     }
@@ -101,13 +115,12 @@ const deleteOneUser = async (req, res, next) => {
         const user = await User.findByIdAndDelete(id);
 
         if (!user) {
-            res.status(404).json({ msg: "I don't know this user :(" });
-        } else {
-            res.status(200).json({
-                msg: 'User deleted successfully',
-                user,
-            });
+            throw new ErrorResponse('I did not find this user :(', 404);
         }
+        return res.status(200).json({
+            msg: 'User deleted successfully',
+            user,
+        });
     } catch (error) {
         next(error);
     }
@@ -118,23 +131,26 @@ const addBookToList = async (req, res, next) => {
         const { bookRefId } = req.body;
         const { id } = req.params;
 
+        if (!bookRefId) {
+            throw new ErrorResponse('Missing book id!', 400);
+        }
+
         const newBook = {
             bookRefId,
         };
         const user = await User.findById(id);
 
+        if (!user) {
+            throw new ErrorResponse('I did not find this user :(', 404);
+        }
         user.readingList.push(newBook);
         await user.save();
         await user.populate('readingList.bookRefId');
 
-        if (!user) {
-            res.status(404).json({ msg: "I don't know this user :(" });
-        } else {
-            res.status(200).json({
-                msg: 'Book added successfully',
-                user,
-            });
-        }
+        return res.status(200).json({
+            msg: 'Book added successfully',
+            user,
+        });
     } catch (error) {
         next(error);
     }
@@ -144,18 +160,17 @@ const removeBookFromList = async (req, res, next) => {
         const { id, bookId } = req.params;
 
         const user = await User.findById(id);
+        if (!user) {
+            throw new ErrorResponse('I did not find this user :(', 404);
+        }
 
         user.readingList.id(bookId).deleteOne();
         await user.save();
 
-        if (!user) {
-            res.status(404).json({ msg: "I don't know this user :(" });
-        } else {
-            res.status(200).json({
-                msg: 'Book removed successfully',
-                user,
-            });
-        }
+        return res.status(200).json({
+            msg: 'Book removed successfully',
+            user,
+        });
     } catch (error) {
         next(error);
     }
@@ -166,22 +181,26 @@ const updateBookInList = async (req, res, next) => {
         const { status } = req.body;
 
         const user = await User.findById(id);
+        if (!user) {
+            throw new ErrorResponse('I did not find this user :(', 404);
+        }
 
         const book = user.readingList.id(bookId);
+        if (!user) {
+            throw new ErrorResponse(
+                'I did not find this book in the reading list :(',
+                404
+            );
+        }
 
         book.status = status;
         await user.save();
 
-        if (!user) {
-            res.status(404).json({ msg: "I don't know this user :(" });
-        } else {
-            res.status(200).json({
-                msg: 'Book removed successfully',
-                user,
-            });
-        }
+        return res.status(200).json({
+            msg: 'Book updated successfully',
+            user,
+        });
     } catch (error) {
-        console.error(error);
         next(error);
     }
 };
