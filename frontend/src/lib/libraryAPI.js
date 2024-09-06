@@ -15,25 +15,28 @@ const signInUser = async (email) => {
         const response = await axios.post('http://localhost:8080/users/login', {
             email,
         });
-        // console.log(response.data.books);
+        // console.log(response);
+        if (response.status !== 200) {
+            throw new Error(response.message);
+        }
         return response.data[0];
     } catch (error) {
         console.error(error);
     }
 };
 
-const addToReadingList = async (id, bookRefId) => {
+const addToReadingList = async (userId, bookRefId) => {
     try {
         const response = await axios.post(
-            `http://localhost:8080/users/auth/${id}/books`,
+            `http://localhost:8080/users/auth/${userId}/books`,
             {
                 bookRefId,
             }
         );
-        // console.log(response.data.books);
         return response.data.user;
     } catch (error) {
         console.error(error);
     }
 };
+
 export { getAllBooks, signInUser, addToReadingList };

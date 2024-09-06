@@ -5,6 +5,7 @@ const {
     getAllUsers,
     getOneUser,
     createUser,
+    getUserByEmail,
     updateUser,
     deleteOneUser,
     addBookToList,
@@ -18,12 +19,18 @@ const userRouter = express.Router();
 // decide which controllers to execute on the specific actions
 userRouter.route('/').get(getAllUsers).post(createUser);
 
-userRouter.route('/:id').get(getOneUser).put(updateUser).delete(deleteOneUser);
-
-userRouter.route('/:id/books').post(addBookToList);
+userRouter.route('/login').post(getUserByEmail);
 
 userRouter
-    .route('/:id/books/:bookId')
+    .route('/auth/:id')
+    .get(getOneUser)
+    .put(updateUser)
+    .delete(deleteOneUser);
+
+userRouter.route('/auth/:id/books').post(addBookToList);
+
+userRouter
+    .route('/auth/:id/books/:bookId')
     .put(updateBookInList)
     .delete(removeBookFromList);
 

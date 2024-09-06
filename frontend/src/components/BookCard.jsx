@@ -1,6 +1,15 @@
+import { useOutletContext } from 'react-router-dom';
+import { addToReadingList } from '../lib/libraryAPI';
 const BookCard = ({ title, author, status, _id }) => {
+    const { user, setUser } = useOutletContext();
+
     const handleClick = async () => {
         try {
+            const updatedUser = await addToReadingList(user._id, _id);
+            console.log(updatedUser);
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+
             console.log(_id);
         } catch (error) {
             console.error(error);

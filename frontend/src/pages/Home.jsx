@@ -9,6 +9,7 @@ const Home = () => {
             .then((books) => setAllBooks(books))
             .catch((err) => console.error(err));
     }, []);
+
     return (
         <div>
             <h1 className='text-8xl text-center mb-6'>

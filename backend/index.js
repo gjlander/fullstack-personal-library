@@ -8,6 +8,7 @@ const connectDB = require('./dbinit.js');
 
 const userRouter = require('./routes/userRoutes.js');
 const bookRouter = require('./routes/bookRoutes.js');
+const errorHandler = require('./middlewares/errorHandler.js');
 
 connectDB();
 // usual middleware
@@ -22,6 +23,8 @@ app.get('/', (req, res) => {
 
 app.use('/users', userRouter);
 app.use('/books', bookRouter);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`.yellow);

@@ -1,15 +1,27 @@
 import { useState } from 'react';
+import { signInUser } from '../lib/libraryAPI';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
     const [value, setValue] = useState('');
+    const { setUser } = useOutletContext();
+    const navigate = useNavigate();
+
     const handleSignIn = async (e) => {
         e.preventDefault();
         try {
-            console.log(value);
+            const currUser = await signInUser(value);
+            // console.log(value);
+            console.log(currUser);
+            setUser(currUser);
+            localStorage.setItem('user', JSON.stringify(currUser));
         } catch (error) {
             console.error(error);
         }
         setValue('');
+        setTimeout(() => {
+            navigate('/profile');
+        }, 500);
     };
     return (
         <div className='flex flex-col items-center p-4 gap-6'>
@@ -23,7 +35,7 @@ const SignIn = () => {
                         <span className='label-text'>Email:</span>
                     </div>
                     <input
-                        type='text'
+                        type='email'
                         placeholder='john@doe.com'
                         className='input input-bordered w-full'
                         value={value}

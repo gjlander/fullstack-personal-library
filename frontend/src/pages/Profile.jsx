@@ -1,7 +1,8 @@
+import { useOutletContext } from 'react-router-dom';
 import BookCard from '../components/BookCard';
 
 const Profile = () => {
-    let user;
+    const { user } = useOutletContext();
 
     if (!user) {
         return <h2>Sorry, you&apos;re not logged in</h2>;
