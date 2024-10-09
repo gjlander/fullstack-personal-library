@@ -1,8 +1,11 @@
 import axios from 'axios';
+const backend = import.meta.env.DEV
+    ? import.meta.env.VITE_BACKEND_DEV
+    : import.meta.env.VITE_BACKEND_PROD;
 
 const getAllBooks = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/books');
+        const response = await axios.get(`${backend}/books`);
         // console.log(response.data.books);
         return response.data.books;
     } catch (error) {
@@ -12,7 +15,7 @@ const getAllBooks = async () => {
 
 const signInUser = async (email) => {
     try {
-        const response = await axios.post('http://localhost:8080/users/login', {
+        const response = await axios.post(`${backend}/users/login`, {
             email,
         });
         // console.log(response);
@@ -28,7 +31,7 @@ const signInUser = async (email) => {
 const addToReadingList = async (userId, bookRefId) => {
     try {
         const response = await axios.post(
-            `http://localhost:8080/users/auth/${userId}/books`,
+            `${backend}/users/auth/${userId}/books`,
             {
                 bookRefId,
             }
